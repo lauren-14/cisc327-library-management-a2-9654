@@ -25,8 +25,8 @@ Make sure you have Python installed and a code editor like VSCode or PyCharm. Th
 # Create virtual environment
 python -m venv venv
 
-# Activate virtual environment
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Activate virtual environment (works on powershell)
+source venv/bin/activate  # On Windows: venv\Scripts\Activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -39,7 +39,7 @@ python app.py
 ```
 Visit `http://localhost:5000` to see the web interface. 
 
-Change the banner to add your name in place of "your name" shown in the image
+Change the banner to add your name in place of "your name" shown in the image (in templates/base.html)
 
 ![Screenshot showing the banner change](banner.png)
 

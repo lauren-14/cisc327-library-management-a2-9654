@@ -4,7 +4,9 @@ Catalog Routes - Book catalog related endpoints
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from database import get_all_books
-from library_service import add_book_to_catalog
+from library_service import (
+    add_book_to_catalog, get_patron_status_report
+)
 
 catalog_bp = Blueprint('catalog', __name__)
 
@@ -51,3 +53,13 @@ def add_book():
     else:
         flash(message, 'error')
         return render_template('add_book.html')
+    
+# @catalog_bp.route('/patron_status')
+# def catalog():
+#     """
+#     Display patron status.
+#     Implements R7: Patron Staus Display
+#     """
+    # NOT COMPLETE
+#     patron = get_patron_status_report()
+#     return render_template('patron_status.html', patron=patron)
