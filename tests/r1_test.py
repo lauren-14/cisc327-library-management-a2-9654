@@ -130,18 +130,18 @@ def test_add_book_invalid_duplicate_isbn():
     assert success == False
     assert "no duplicate ISBNs" in message
 
-if __name__ == "__main__":
-    test_add_book_valid_input()
-    test_add_book_invalid_isbn_too_short()
-    test_add_book_invalid_isbn_too_long()
-    test_add_book_invalid_isbn_with_letters()
-    test_add_book_invalid_negative_isbn()
-    test_add_book_invalid_long_title()
-    test_add_book_valid_200_title()
-    test_add_book_invalid_no_title()
-    test_add_book_invalid_no_author()
-    test_add_book_valid_100_author()
-    test_add_book_invalid_long_author()
-    test_add_book_invalid_zero_copies()
-    test_add_book_invalid_negative_copies()
-    test_add_book_invalid_duplicate_isbn()
+# if __name__ == "__main__":
+#     test_add_book_valid_input()
+#     test_add_book_invalid_isbn_too_short()
+#     test_add_book_invalid_isbn_too_long()
+#     test_add_book_invalid_isbn_with_letters()
+#     test_add_book_invalid_negative_isbn()
+#     test_add_book_invalid_long_title()
+#     test_add_book_valid_200_title()
+#     test_add_book_invalid_no_title()
+#     test_add_book_invalid_no_author()
+#     test_add_book_valid_100_author()
+#     test_add_book_invalid_long_author()
+#     test_add_book_invalid_zero_copies()
+#     test_add_book_invalid_negative_copies()
+#     test_add_book_invalid_duplicate_isbn()
