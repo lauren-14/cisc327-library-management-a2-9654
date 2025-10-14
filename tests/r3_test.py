@@ -43,7 +43,7 @@ def test_borrow_book_invalid_isbn_too_short():
 
 def test_borrow_book_invalid_isbn_with_letters():
     """Test borrowing a book with letters in ISBN."""
-    success, message = borrow_book_by_patron("123456", "1234567890LOL")
+    success, message = borrow_book_by_patron("123456", "1234567890OMG")
     
     assert success == False
     assert "13 digits" in message
