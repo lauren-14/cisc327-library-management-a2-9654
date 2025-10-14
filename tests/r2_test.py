@@ -1,5 +1,5 @@
 """
-This testing suite is used to test the R1 requirement:
+This testing suite is used to test the R2 requirement:
 
 The system shall display all books in the catalog in a table format showing:
 - Book ID, Title, Author, ISBN
