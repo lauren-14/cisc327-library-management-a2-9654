@@ -59,6 +59,8 @@ Report your findings in a table with columns function name, implementation statu
 ### 4. Submission
 - See the submission instructions in OnQ.
 
+- use `git push origin main` after pushing on desktop
+
  
 
 
