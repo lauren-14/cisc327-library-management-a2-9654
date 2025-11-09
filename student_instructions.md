@@ -25,7 +25,7 @@ Make sure you have Python installed and a code editor like VSCode or PyCharm. Th
 # Create virtual environment
 python -m venv venv
 
-# Activate virtual environment (works on powershell)
+# Activate virtual environment (works on powershell) -- use 
 source venv/bin/activate  # On Windows: venv\Scripts\Activate
 
 # Install dependencies

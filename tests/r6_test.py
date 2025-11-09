@@ -10,58 +10,53 @@ The system shall provide search functionality with the following parameters:
 """
 
 import pytest
-import sys
-import os
-# sys.path.insert(1, "C:/Users/laure/OneDrive/Documents!/CISC 327/CISC327-CMPE327-F25")
-from library_service import (
-    search_books_in_catalog
-)
+from services import library_service 
 
 def test_search_book_valid_title():
     """Test book valid title input (partial matching)."""
-    success, message = search_books_in_catalog("the great gatsby","title")
+    success, message = library_service.search_books_in_catalog("the great gatsby","title")
     
     assert success == True
     assert "success" in message.lower()
 
 def test_search_book_valid_author():
     """Test book valid author input (partial matching)."""
-    success, message = search_books_in_catalog("george orwell","author")
+    success, message = library_service.search_books_in_catalog("george orwell","author")
     
     assert success == True
     assert "success" in message.lower()
 
 def test_search_book_valid_isbn():
     """Test book valid isbn input (exact matching)."""
-    success, message = search_books_in_catalog("9780743273565","isbn") # gatsby isbn
+    success, message = library_service.search_books_in_catalog("9780743273565","isbn") # gatsby isbn
     
     assert success == True
     assert "success" in message.lower()
 
 def test_search_book_invalid_title_not_in_db():
     """Test book not in database."""
-    success, message = search_books_in_catalog("Six of Crows","title")
+    success, message = library_service.search_books_in_catalog("Six of Crows","title")
     
     assert success == False
     assert "book title must be in database" in message
 
 def test_search_book_invalid_author_not_in_db():
     """Test book not in database."""
-    success, message = search_books_in_catalog("Leigh Bardugo","author")
+    success, message = library_service.search_books_in_catalog("Leigh Bardugo","author")
     
     assert success == False
     assert "book author must be in database" in message
 
 def test_search_book_invalid_isbn_not_in_db():
     """Test book not in database."""
-    success, message = search_books_in_catalog("5","isbn")
+    success, message = library_service.search_books_in_catalog("5","isbn")
     
     assert success == False
     assert "book ISBN must be in database" in message
 
 def test_search_book_invalid_search_type():
     """Test book not in database."""
-    success, message = search_books_in_catalog("5","search type")
+    success, message = library_service.search_books_in_catalog("5","search type")
     
     assert success == False
     assert "search type must be 'author', 'title', or 'isbn'" in message
