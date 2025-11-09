@@ -60,6 +60,7 @@ Report your findings in a table with columns function name, implementation statu
 - See the submission instructions in OnQ.
 
 - use `git push origin main` after pushing on desktop
+- use `source venv/Scripts/Activate` to activate virtual environment in bash
 
  
 
