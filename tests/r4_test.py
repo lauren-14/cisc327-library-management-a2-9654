@@ -10,6 +10,9 @@ The system shall provide a return interface that includes:
 """
 
 import pytest
+import sys
+sys.path.append('services')
+#sys.path.append('../services')
 import services.library_service as library_service 
 
 
@@ -17,7 +20,7 @@ def test_return_book_valid_input(mocker):
     """Test returning a book with valid input."""
 
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'available_copies':1})
     
@@ -25,11 +28,11 @@ def test_return_book_valid_input(mocker):
                                                  'available_copies':1}
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
     assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1}]
 
     # testing calculate_late_fee_for_book stub
-    mocker.patch("library_service.calculate_late_fee_for_book", return_value={
+    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value={
                         'fee_amount': 15,
                         'days_overdue': 21
                     })
@@ -39,14 +42,26 @@ def test_return_book_valid_input(mocker):
                     }
 
     # testing update_borrow_record_return_date stub
-    mocker.patch("library_service.update_borrow_record_return_date", return_value=True)
-    mocker.patch("library_service.update_book_availability", return_value=True)
+    mocker.patch("services.library_service.update_borrow_record_return_date", return_value=True)
+    mocker.patch("services.library_service.update_book_availability", return_value=True)
 
     # 1984 ISBN
     success, message = library_service.return_book_by_patron("123456", 1)
     
     assert success == True
     assert "success" in message
+
+def test_return_book_invalid_not_in_db(mocker):
+    """Test borrowing a book not in the database."""
+
+    # testing get_book_by_id stub
+    mocker.patch("services.library_service.get_book_by_id", 
+                    return_value=False)
+    
+    success, message = library_service.borrow_book_by_patron("123456", 2)
+    
+    assert success == False
+    assert "Book not found" in message
 
 def test_return_book_invalid_patron_too_long():
     """Test returning a book with too long patron ID."""
@@ -80,7 +95,7 @@ def test_return_book_invalid_incorrect_patron(mocker):
     """Test returning a book from different patron."""
 
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'available_copies':1})
     
@@ -88,7 +103,7 @@ def test_return_book_invalid_incorrect_patron(mocker):
                                                  'available_copies':1}
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[])
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[])
     assert library_service.get_patron_borrowed_books("123456") == []
     
     # 1984 ISBN
@@ -98,8 +113,74 @@ def test_return_book_invalid_incorrect_patron(mocker):
     assert "not borrowed book with ID" in message
 
 # update return date database error
+def test_return_book_return_data_database_error(mocker):
+    """Test returning a book with valid input."""
 
-# update avail copies database error
+    # testing get_book_by_id stub
+    mocker.patch("services.library_service.get_book_by_id", 
+                    return_value={'title':'sample_title',
+                                  'available_copies':1})
+    
+    assert library_service.get_book_by_id(1) == {'title':'sample_title',
+                                                 'available_copies':1}
+
+    # testing get_patron_borrowed_books stub
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
+    assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1}]
+
+    # testing calculate_late_fee_for_book stub
+    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value={
+                        'fee_amount': 15,
+                        'days_overdue': 21
+                    })
+    assert library_service.calculate_late_fee_for_book("123456", 1) == {
+                        'fee_amount': 15,
+                        'days_overdue': 21
+                    }
+
+    # testing update_borrow_record_return_date stub
+    mocker.patch("services.library_service.update_borrow_record_return_date", return_value=False)
+
+    # 1984 ISBN
+    success, message = library_service.return_book_by_patron("123456", 1)
+    
+    assert success == False
+    assert "Database error occurred while returning book" in message
+
+def test_return_book_update_copies_database_error(mocker):
+    """Test returning a book with valid input."""
+
+    # testing get_book_by_id stub
+    mocker.patch("services.library_service.get_book_by_id", 
+                    return_value={'title':'sample_title',
+                                  'available_copies':1})
+    
+    assert library_service.get_book_by_id(1) == {'title':'sample_title',
+                                                 'available_copies':1}
+
+    # testing get_patron_borrowed_books stub
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
+    assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1}]
+
+    # testing calculate_late_fee_for_book stub
+    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value={
+                        'fee_amount': 15,
+                        'days_overdue': 21
+                    })
+    assert library_service.calculate_late_fee_for_book("123456", 1) == {
+                        'fee_amount': 15,
+                        'days_overdue': 21
+                    }
+
+    # testing update_borrow_record_return_date stub
+    mocker.patch("services.library_service.update_borrow_record_return_date", return_value=True)
+    mocker.patch("services.library_service.update_book_availability", return_value=False)
+
+    # 1984 ISBN
+    success, message = library_service.return_book_by_patron("123456", 1)
+    
+    assert success == False
+    assert "Database error occurred while updating book availability" in message
 
 # if __name__ == "__main__":
 #     test_return_book_valid_input()

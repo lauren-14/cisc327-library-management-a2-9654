@@ -11,6 +11,9 @@ The system shall provide an API endpoint GET `/api/late_fee/<patron_id>/<book_id
 """
 
 import pytest
+import sys
+sys.path.append('services')
+#sys.path.append('../services')
 from datetime import datetime, timedelta
 import services.library_service as library_service
 
@@ -18,12 +21,12 @@ def test_late_fee_valid_input_14_or_less(mocker):
     """Test late fee for book with valid input."""
 
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'is_overdue': False})
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[{'book_id':1,'is_overdue': False}])
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1,'is_overdue': False}])
     assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1, 'is_overdue': False}]
 
     values, message = library_service.calculate_late_fee_for_book("123456", 1)
@@ -36,14 +39,14 @@ def test_late_fee_valid_input_15_to_21(mocker):
     """Test late fee for book with valid input."""
 
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'is_overdue': True})
     
     time_difference = timedelta(days=2)
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[{'book_id':1,
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1,
                                                                              'is_overdue': True,
                                                                              'due_date':(datetime.now() - time_difference)}])
     values, message = library_service.calculate_late_fee_for_book("123456", 1)
@@ -56,14 +59,14 @@ def test_late_fee_valid_input_22_or_more(mocker):
     """Test late fee for book with valid input."""
 
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'is_overdue': True})
     
     time_difference = timedelta(days=8)
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[{'book_id':1,
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1,
                                                                              'is_overdue': True,
                                                                              'due_date':(datetime.now() - time_difference)}])
     
@@ -78,14 +81,14 @@ def test_late_fee_valid_over_15_fee(mocker):
     """Test late fee for book with valid input."""
 
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'is_overdue': True})
     
     time_difference = timedelta(days=100)
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[{'book_id':1,
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1,
                                                                              'is_overdue': True,
                                                                              'due_date':(datetime.now() - time_difference)}])
     
@@ -127,12 +130,12 @@ def test_late_fee_invalid_incorrect_patron(mocker):
     """Test late fee for book from different patron."""
 
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'is_overdue': False})
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[])
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[])
     assert library_service.get_patron_borrowed_books("123456") == []
 
     # 1984 ISBN

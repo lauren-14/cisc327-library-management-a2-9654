@@ -3,6 +3,8 @@ This testing suite is used to test the refund_late_fees function in library_serv
 """
 
 import pytest
+import sys
+sys.path.append('services')
 from unittest.mock import Mock
 from unittest.mock import patch
 import services.library_service as library_service 

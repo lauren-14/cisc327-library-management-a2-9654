@@ -10,6 +10,9 @@ The system shall display patron status for a particular patron that includes the
 """
 
 import pytest
+import sys
+sys.path.append('services')
+#sys.path.append('../services')
 import services.library_service as library_service 
 
 # test not patron_id, not patron_id.isdigit()
@@ -18,16 +21,16 @@ def test_patron_status_valid(mocker):
     """Test patron status valid input."""
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
 
     # calculate late fee for book stub
-    mocker.patch("library_service.calculate_late_fee_for_book", return_value={
+    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value={
                         'fee_amount': 15,
                         'days_overdue': 21
                     })
     
     # testing get_patron_borrow_count stub
-    mocker.patch("library_service.get_patron_borrow_count", return_value=1)
+    mocker.patch("services.library_service.get_patron_borrow_count", return_value=1)
     assert library_service.get_patron_borrow_count("123456") == 1
 
     report, message = library_service.get_patron_status_report("123456")

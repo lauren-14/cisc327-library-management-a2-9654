@@ -11,12 +11,15 @@ The system shall provide a borrowing interface to borrow books by patron ID:
 """
 
 import pytest
+import sys
+sys.path.append('services')
+#sys.path.append('../services')
 import services.library_service as library_service 
 
 def test_borrow_book_valid_input(mocker):
     """Test borrowing a book with valid input."""
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'available_copies':1})
     
@@ -24,24 +27,36 @@ def test_borrow_book_valid_input(mocker):
                                                  'available_copies':1}
 
     # testing get_patron_borrow_count stub
-    mocker.patch("library_service.get_patron_borrow_count", return_value=5)
+    mocker.patch("services.library_service.get_patron_borrow_count", return_value=5)
     assert library_service.get_patron_borrow_count("123456") == 5
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[])
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[])
     assert library_service.get_patron_borrowed_books("123456") == []
 
     # insert_borrow_record stub
-    mocker.patch("library_service.insert_borrow_record", return_value=True)
+    mocker.patch("services.library_service.insert_borrow_record", return_value=True)
 
     # testing update_book_availability stub
-    mocker.patch("library_service.update_book_availability", return_value=True)
+    mocker.patch("services.library_service.update_book_availability", return_value=True)
     assert library_service.update_book_availability(1,-1) == True
 
     success, message = library_service.borrow_book_by_patron("123456", 2)
     
     assert success == True
     assert "Successfully borrowed" in message
+
+def test_borrow_book_not_in_db(mocker):
+    """Test borrowing a book not in the database."""
+
+    # testing get_book_by_id stub
+    mocker.patch("services.library_service.get_book_by_id", 
+                    return_value=False)
+    
+    success, message = library_service.borrow_book_by_patron("123456", 2)
+    
+    assert success == False
+    assert "Book not found" in message
 
 def test_borrow_book_invalid_patron_too_long():
     """Test borrowing a book with too long patron ID."""
@@ -74,7 +89,7 @@ def test_borrow_book_invalid_negative_patron():
 def test_borrow_book_invalid_borrow_limit(mocker):
     """Test borrowing a book with borrow limit of 5 reached."""
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'available_copies':1})
     
@@ -82,7 +97,7 @@ def test_borrow_book_invalid_borrow_limit(mocker):
                                                  'available_copies':1}
 
     # testing get_patron_borrow_count stub
-    mocker.patch("library_service.get_patron_borrow_count", return_value=6)
+    mocker.patch("services.library_service.get_patron_borrow_count", return_value=6)
 
     assert library_service.get_patron_borrow_count("123456") == 6
     success, message = library_service.borrow_book_by_patron("123456", 2)
@@ -94,7 +109,7 @@ def test_borrow_book_invalid_no_copies(mocker):
     """Test borrowing a book with no copies."""
 
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'available_copies':0})
     
@@ -111,7 +126,7 @@ def test_borrow_book_invalid_duplicate(mocker):
     """Test borrowing another copy of the same book already borrowed."""
 
     # testing get_book_by_id stub
-    mocker.patch("library_service.get_book_by_id", 
+    mocker.patch("services.library_service.get_book_by_id", 
                     return_value={'title':'sample_title',
                                   'available_copies':1,
                                   'book_id:': 1})
@@ -121,11 +136,11 @@ def test_borrow_book_invalid_duplicate(mocker):
                                                  'book_id:': 1}
 
     # testing get_patron_borrow_count stub
-    mocker.patch("library_service.get_patron_borrow_count", return_value=1)
+    mocker.patch("services.library_service.get_patron_borrow_count", return_value=1)
     assert library_service.get_patron_borrow_count("123456") == 1
 
     # testing get_patron_borrowed_books stub
-    mocker.patch("library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
     assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1}]
 
     # 1984 ISBN
@@ -134,35 +149,63 @@ def test_borrow_book_invalid_duplicate(mocker):
     assert success == False
     assert "already borrowed" in message
 
-# def test_borrow_book_database_error(mocker):
-#     """Test borrowing a book with database error."""
-#     # testing get_book_by_id stub
-#     mocker.patch("library_service.get_book_by_id", 
-#                     return_value={'title':'sample_title',
-#                                   'available_copies':1})
+def test_borrow_book_borrow_record_database_error(mocker):
+    """Test borrowing a book with borrow record database error."""
+
+    # testing get_book_by_id stub
+    mocker.patch("services.library_service.get_book_by_id", 
+                    return_value={'title':'sample_title',
+                                  'available_copies':1})
     
-#     assert library_service.get_book_by_id(1) == {'title':'sample_title',
-#                                                  'available_copies':1}
+    assert library_service.get_book_by_id(1) == {'title':'sample_title',
+                                                 'available_copies':1}
 
-#     # testing get_patron_borrow_count stub
-#     mocker.patch("library_service.get_patron_borrow_count", return_value=5)
-#     assert library_service.get_patron_borrow_count("123456") == 5
+    # testing get_patron_borrow_count stub
+    mocker.patch("services.library_service.get_patron_borrow_count", return_value=5)
+    assert library_service.get_patron_borrow_count("123456") == 5
 
-#     # testing get_patron_borrowed_books stub
-#     mocker.patch("library_service.get_patron_borrowed_books", return_value=[])
-#     assert library_service.get_patron_borrowed_books("123456") == []
+    # testing get_patron_borrowed_books stub
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[])
+    assert library_service.get_patron_borrowed_books("123456") == []
 
-#     # insert_borrow_record stub
-#     mocker.patch("library_service.insert_borrow_record", return_value=True)
+    # insert_borrow_record stub
+    mocker.patch("services.library_service.insert_borrow_record", return_value=False)
 
-#     # testing update_book_availability stub
-#     mocker.patch("library_service.update_book_availability", return_value=True)
-#     assert library_service.update_book_availability(1,-1) == True
-
-#     success, message = library_service.borrow_book_by_patron("123456", 2)
+    success, message = library_service.borrow_book_by_patron("123456", 2)
     
-#     assert success == True
-#     assert "Successfully borrowed" in message
+    assert success == False
+    assert "Database error occurred while creating borrow record" in message
+
+def test_borrow_book_update_availability_database_error(mocker):
+    """Test borrowing a book with borrow record database error."""
+
+    # testing get_book_by_id stub
+    mocker.patch("services.library_service.get_book_by_id", 
+                    return_value={'title':'sample_title',
+                                  'available_copies':1})
+    
+    assert library_service.get_book_by_id(1) == {'title':'sample_title',
+                                                 'available_copies':1}
+
+    # testing get_patron_borrow_count stub
+    mocker.patch("services.library_service.get_patron_borrow_count", return_value=5)
+    assert library_service.get_patron_borrow_count("123456") == 5
+
+    # testing get_patron_borrowed_books stub
+    mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[])
+    assert library_service.get_patron_borrowed_books("123456") == []
+
+    # insert_borrow_record stub
+    mocker.patch("services.library_service.insert_borrow_record", return_value=True)
+
+    # testing update_book_availability stub
+    mocker.patch("services.library_service.update_book_availability", return_value=False)
+    assert library_service.update_book_availability(1,-1) == False
+
+    success, message = library_service.borrow_book_by_patron("123456", 2)
+    
+    assert success == False
+    assert "Database error occurred while updating book availability" in message
 
 # if __name__ == "__main__":
 #     test_borrow_book_valid_input()

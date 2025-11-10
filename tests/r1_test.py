@@ -10,7 +10,9 @@ The system shall provide a web interface to add new books to the catalog via a f
 """
 
 import pytest
-#from services import library_service 
+import sys
+sys.path.append('services')
+#sys.path.append('../services')
 import services.library_service as library_service
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -19,13 +21,13 @@ def test_add_book_valid_input(mocker):
     """Test adding a book with valid input."""
 
     # get_book_by_isbn stub that mocks book being in database
-    mocker.patch("library_service.get_book_by_isbn", 
+    mocker.patch("services.library_service.get_book_by_isbn", 
                     return_value=None)
     
     assert library_service.get_book_by_isbn("1234567890123") == None
 
     # testing mock insert data stub
-    mocker.patch("library_service.insert_book",return_value=True)
+    mocker.patch("services.library_service.insert_book",return_value=True)
     assert library_service.insert_book("Test Book", "Test Author", "1234567890123", 5, 5) == True
 
     success, message = library_service.add_book_to_catalog("Test Book", "Test Author", "1234567890123", 5)
@@ -70,27 +72,6 @@ def test_add_book_invalid_long_title():
     
     assert success == False
     assert "less than 200 characters" in message
-
-# def test_add_book_valid_200_title(mocker):
-#     """Test adding a book with valid 200 character title and other valid input."""
-#     title = ""
-#     for i in range (200):
-#         title += "x"
-
-#     # get_book_by_isbn stub that mocks book being in database
-#     mocker.patch("library_service.get_book_by_isbn", 
-#                     return_value=None)
-    
-#     assert library_service.get_book_by_isbn("1234567890123") == None
-
-#     # testing mock insert data stub
-#     mocker.patch("library_service.insert_book",return_value=True)
-#     assert library_service.insert_book(title, "Test Author", "1234567890123", 5, 5) == True
-
-#     success, message = library_service.add_book_to_catalog(title, "Test Author", "1234567890123", 5)
-    
-#     assert success == True
-#     assert "successfully added" in message
 
 def test_add_book_invalid_no_title():
     """Test adding a book with no (empty) title."""
@@ -140,8 +121,20 @@ def test_add_book_invalid_negative_copies():
     assert success == False
     assert "Total copies must be a positive integer" in message
 
-def test_add_book_invalid_duplicate_isbn():
+def test_add_book_invalid_non_int_copies():
+    """Test adding a book with non-int copies input."""
+    success, message = library_service.add_book_to_catalog("Test Title", "Test Author", "1234567890123", "p")
+    
+    assert success == False
+    assert "Total copies must be a positive integer" in message
+
+def test_add_book_invalid_duplicate_isbn(mocker):
     """Test adding a book with a duplicate ISBN of an existing book in the database."""
+
+    # get_book_by_isbn stub that mocks book being in database
+    mocker.patch("services.library_service.get_book_by_isbn", 
+                    return_value={'title':'sample_title'})
+    
     # great gatsby ISBN taken from database
     success, message = library_service.add_book_to_catalog("Test Title", "Test Author", '9780743273565', 5) 
     
@@ -152,13 +145,13 @@ def test_add_book_invalid_database_error(mocker):
     """Test adding a book with database error."""
 
     # get_book_by_isbn stub that mocks book being in database
-    mocker.patch("library_service.get_book_by_isbn", 
+    mocker.patch("services.library_service.get_book_by_isbn", 
                     return_value=None)
     
     assert library_service.get_book_by_isbn("1234567890123") == None
 
     # testing mock insert data stub
-    mocker.patch("library_service.insert_book",return_value=False)
+    mocker.patch("services.library_service.insert_book",return_value=False)
     assert library_service.insert_book("Test Book", "Test Author", "1234567890123", 5, 5) == False
 
     success, message = library_service.add_book_to_catalog("Test Book", "Test Author", "1234567890123", 5)
