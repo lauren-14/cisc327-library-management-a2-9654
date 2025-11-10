@@ -8,4 +8,4 @@ The system shall display all books in the catalog in a table format showing:
 """
 
 import pytest
-from services import library_service
+import services.library_service as library_service

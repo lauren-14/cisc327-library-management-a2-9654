@@ -5,8 +5,8 @@ This testing suite is used to test the refund_late_fees function in library_serv
 import pytest
 from unittest.mock import Mock
 from unittest.mock import patch
-import library_service 
-from payment_service import (
+import services.library_service as library_service 
+from services.payment_service import (
     PaymentGateway
 )
 

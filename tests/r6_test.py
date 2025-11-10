@@ -10,56 +10,91 @@ The system shall provide search functionality with the following parameters:
 """
 
 import pytest
-from services import library_service 
+import services.library_service as library_service 
 
-def test_search_book_valid_title():
+def test_search_book_valid_title(mocker):
     """Test book valid title input (partial matching)."""
-    success, message = library_service.search_books_in_catalog("the great gatsby","title")
-    
-    assert success == True
-    assert "success" in message.lower()
 
-def test_search_book_valid_author():
+    # testing get_all_books stub
+    mocker.patch("library_service.get_all_books", 
+                    return_value=[{"title":"the great gatsby"}])
+    
+    book, message = library_service.search_books_in_catalog("the great gatsby","title")
+    
+    assert len(book) > 0
+    assert "success" in message
+
+def test_search_book_valid_author(mocker):
     """Test book valid author input (partial matching)."""
-    success, message = library_service.search_books_in_catalog("george orwell","author")
+    # testing get_all_books stub
+    mocker.patch("library_service.get_all_books", 
+                    return_value=[{"author":"harper lee"}])
     
-    assert success == True
-    assert "success" in message.lower()
+    book, message = library_service.search_books_in_catalog("harper lee","author")
+    
+    assert len(book) > 0
+    assert "success" in message
 
-def test_search_book_valid_isbn():
+def test_search_book_valid_isbn(mocker):
     """Test book valid isbn input (exact matching)."""
-    success, message = library_service.search_books_in_catalog("9780743273565","isbn") # gatsby isbn
-    
-    assert success == True
-    assert "success" in message.lower()
 
-def test_search_book_invalid_title_not_in_db():
-    """Test book not in database."""
-    success, message = library_service.search_books_in_catalog("Six of Crows","title")
+    # get_book_by_isbn stub that mocks book being in database
+    mocker.patch("library_service.get_book_by_isbn", 
+                    return_value=True)
     
-    assert success == False
-    assert "book title must be in database" in message
+    assert library_service.get_book_by_isbn("1234567890123") == True
+    book, message = library_service.search_books_in_catalog("9780743273565","isbn")
+    
+    assert len(book) > 0
+    assert "success" in message
 
-def test_search_book_invalid_author_not_in_db():
+def test_search_book_invalid_title_not_in_db(mocker):
     """Test book not in database."""
-    success, message = library_service.search_books_in_catalog("Leigh Bardugo","author")
-    
-    assert success == False
-    assert "book author must be in database" in message
 
-def test_search_book_invalid_isbn_not_in_db():
-    """Test book not in database."""
-    success, message = library_service.search_books_in_catalog("5","isbn")
+    # testing get_all_books stub
+    mocker.patch("library_service.get_all_books", 
+                    return_value=[{"title":"the great gatsby"}])
     
-    assert success == False
-    assert "book ISBN must be in database" in message
+    book, message = library_service.search_books_in_catalog("Six of Crows","title")
+    
+    assert len(book) == 0
+    assert "not found" in message
 
-def test_search_book_invalid_search_type():
+def test_search_book_invalid_author_not_in_db(mocker):
     """Test book not in database."""
-    success, message = library_service.search_books_in_catalog("5","search type")
+
+    # testing get_all_books stub
+    mocker.patch("library_service.get_all_books", 
+                    return_value=[{"author":"harper lee"}])
     
-    assert success == False
-    assert "search type must be 'author', 'title', or 'isbn'" in message
+    book, message = library_service.search_books_in_catalog("Leigh Bardugo","author")
+    
+    assert len(book) == 0
+    assert "not found" in message
+
+def test_search_book_invalid_isbn_not_in_db(mocker):
+    """Test book not in database."""
+
+    # get_book_by_isbn stub that mocks book being in database
+    mocker.patch("library_service.get_book_by_isbn", 
+                    return_value=False)
+    
+    assert library_service.get_book_by_isbn("1234567890123") == False
+
+    book, message = library_service.search_books_in_catalog("5","isbn")
+    
+    assert book == []
+    assert "ISBN does not exist" in message
+
+def test_search_book_invalid_search_type(mocker):
+    """Test book not in database."""
+
+    mocker.patch("library_service.get_all_books", 
+                    return_value=[])
+    book, message = library_service.search_books_in_catalog("5","search type")
+    
+    assert book == []
+    assert "invalid search type" in message
 
 # if __name__ == "__main__":
 #     test_search_book_valid_title()

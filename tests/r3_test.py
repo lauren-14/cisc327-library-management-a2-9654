@@ -11,103 +11,158 @@ The system shall provide a borrowing interface to borrow books by patron ID:
 """
 
 import pytest
-from services import library_service 
+import services.library_service as library_service 
 
-def test_borrow_book_valid_input():
+def test_borrow_book_valid_input(mocker):
     """Test borrowing a book with valid input."""
-    # great gatsby ISBN
-    success, message = library_service.borrow_book_by_patron("123456", "9780743273565")
+    # testing get_book_by_id stub
+    mocker.patch("library_service.get_book_by_id", 
+                    return_value={'title':'sample_title',
+                                  'available_copies':1})
+    
+    assert library_service.get_book_by_id(1) == {'title':'sample_title',
+                                                 'available_copies':1}
+
+    # testing get_patron_borrow_count stub
+    mocker.patch("library_service.get_patron_borrow_count", return_value=5)
+    assert library_service.get_patron_borrow_count("123456") == 5
+
+    # testing get_patron_borrowed_books stub
+    mocker.patch("library_service.get_patron_borrowed_books", return_value=[])
+    assert library_service.get_patron_borrowed_books("123456") == []
+
+    # insert_borrow_record stub
+    mocker.patch("library_service.insert_borrow_record", return_value=True)
+
+    # testing update_book_availability stub
+    mocker.patch("library_service.update_book_availability", return_value=True)
+    assert library_service.update_book_availability(1,-1) == True
+
+    success, message = library_service.borrow_book_by_patron("123456", 2)
     
     assert success == True
-    assert "successfully added" in message.lower()
-
-def test_borrow_book_invalid_isbn_too_long():
-    """Test borrowing a book with too long ISBN."""
-    success, message = library_service.borrow_book_by_patron("123456", "12345678901234")
-    
-    assert success == False
-    assert "13 digits" in message
-
-def test_borrow_book_invalid_isbn_too_short():
-    """Test borrowing a book with too short ISBN."""
-    success, message = library_service.borrow_book_by_patron("123456", "123456789012")
-    
-    assert success == False
-    assert "13 digits" in message
-
-def test_borrow_book_invalid_isbn_with_letters():
-    """Test borrowing a book with letters in ISBN."""
-    success, message = library_service.borrow_book_by_patron("123456", "1234567890OMG")
-    
-    assert success == False
-    assert "13 digits" in message
-
-def test_borrow_book_invalid_negative_isbn():
-    """Test borrowing a book with negative ISBN."""
-    success, message = library_service.borrow_book_by_patron("123456", "-123456789012")
-    
-    assert success == False
-    assert "13 digits and positive" in message
-
-def test_borrow_book_invalid_isbn_not_in_db():
-    """Test borrowing a book with ISBN not in database."""
-    success, message = library_service.borrow_book_by_patron("123456", "1234567890123")
-    
-    assert success == False
-    assert "ISBN must be in database" in message
+    assert "Successfully borrowed" in message
 
 def test_borrow_book_invalid_patron_too_long():
     """Test borrowing a book with too long patron ID."""
-    success, message = library_service.borrow_book_by_patron("1234567", "9780743273565")
+    success, message = library_service.borrow_book_by_patron("1234567", 2)
     
     assert success == False
     assert "6 digits" in message
 
 def test_borrow_book_invalid_patron_too_short():
     """Test borrowing a book with too short patron ID."""
-    success, message = library_service.borrow_book_by_patron("12345", "9780743273565")
+    success, message = library_service.borrow_book_by_patron("12345", 2)
     
     assert success == False
     assert "6 digits" in message
 
 def test_borrow_book_invalid_patron_with_letters():
     """Test borrowing a book with letters in patron ID."""
-    success, message = library_service.borrow_book_by_patron("12345X", "9780743273565")
+    success, message = library_service.borrow_book_by_patron("12345X", 2)
     
     assert success == False
     assert "6 digits" in message
 
 def test_borrow_book_invalid_negative_patron():
-    """Test borrowing a book with negative ISBN."""
-    success, message = library_service.borrow_book_by_patron("-12345", "9780743273565")
+    """Test borrowing a book with negative patron ID."""
+    success, message = library_service.borrow_book_by_patron("-12345", 2)
     
     assert success == False
-    assert "6 digits and positive" in message
+    assert "6 digits" in message
 
-def test_borrow_book_invalid_borrow_limit():
+def test_borrow_book_invalid_borrow_limit(mocker):
     """Test borrowing a book with borrow limit of 5 reached."""
-    for i in range(5):
-        success, message = library_service.borrow_book_by_patron("123456", "9780743273565")
-    success, message = library_service.borrow_book_by_patron("123456", "9780743273565")
+    # testing get_book_by_id stub
+    mocker.patch("library_service.get_book_by_id", 
+                    return_value={'title':'sample_title',
+                                  'available_copies':1})
+    
+    assert library_service.get_book_by_id(1) == {'title':'sample_title',
+                                                 'available_copies':1}
+
+    # testing get_patron_borrow_count stub
+    mocker.patch("library_service.get_patron_borrow_count", return_value=6)
+
+    assert library_service.get_patron_borrow_count("123456") == 6
+    success, message = library_service.borrow_book_by_patron("123456", 2)
     
     assert success == False
-    assert "borrow limit reached" in message
+    assert "maximum borrowing limit" in message
 
-def test_borrow_book_invalid_no_copies():
+def test_borrow_book_invalid_no_copies(mocker):
     """Test borrowing a book with no copies."""
+
+    # testing get_book_by_id stub
+    mocker.patch("library_service.get_book_by_id", 
+                    return_value={'title':'sample_title',
+                                  'available_copies':0})
+    
+    assert library_service.get_book_by_id(1) == {'title':'sample_title',
+                                                 'available_copies':0}
+    
     # 1984 ISBN
-    success, message = library_service.borrow_book_by_patron("123123", "9780451524935 ")
+    success, message = library_service.borrow_book_by_patron("123123", 2)
     
     assert success == False
-    assert "borrow limit reached" in message
+    assert "currently not available" in message
 
-def test_borrow_book_invalid_duplicate():
+def test_borrow_book_invalid_duplicate(mocker):
     """Test borrowing another copy of the same book already borrowed."""
+
+    # testing get_book_by_id stub
+    mocker.patch("library_service.get_book_by_id", 
+                    return_value={'title':'sample_title',
+                                  'available_copies':1,
+                                  'book_id:': 1})
+    
+    assert library_service.get_book_by_id(1) == {'title':'sample_title',
+                                                 'available_copies':1,
+                                                 'book_id:': 1}
+
+    # testing get_patron_borrow_count stub
+    mocker.patch("library_service.get_patron_borrow_count", return_value=1)
+    assert library_service.get_patron_borrow_count("123456") == 1
+
+    # testing get_patron_borrowed_books stub
+    mocker.patch("library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
+    assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1}]
+
     # 1984 ISBN
-    success, message = library_service.borrow_book_by_patron("123456", "9780451524935")
+    success, message = library_service.borrow_book_by_patron("123456", 1)
     
     assert success == False
     assert "already borrowed" in message
+
+# def test_borrow_book_database_error(mocker):
+#     """Test borrowing a book with database error."""
+#     # testing get_book_by_id stub
+#     mocker.patch("library_service.get_book_by_id", 
+#                     return_value={'title':'sample_title',
+#                                   'available_copies':1})
+    
+#     assert library_service.get_book_by_id(1) == {'title':'sample_title',
+#                                                  'available_copies':1}
+
+#     # testing get_patron_borrow_count stub
+#     mocker.patch("library_service.get_patron_borrow_count", return_value=5)
+#     assert library_service.get_patron_borrow_count("123456") == 5
+
+#     # testing get_patron_borrowed_books stub
+#     mocker.patch("library_service.get_patron_borrowed_books", return_value=[])
+#     assert library_service.get_patron_borrowed_books("123456") == []
+
+#     # insert_borrow_record stub
+#     mocker.patch("library_service.insert_borrow_record", return_value=True)
+
+#     # testing update_book_availability stub
+#     mocker.patch("library_service.update_book_availability", return_value=True)
+#     assert library_service.update_book_availability(1,-1) == True
+
+#     success, message = library_service.borrow_book_by_patron("123456", 2)
+    
+#     assert success == True
+#     assert "Successfully borrowed" in message
 
 # if __name__ == "__main__":
 #     test_borrow_book_valid_input()

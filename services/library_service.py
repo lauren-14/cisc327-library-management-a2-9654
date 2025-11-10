@@ -200,7 +200,7 @@ def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
                 return {
                     'fee_amount': 0.00,
                     'days_overdue': 0
-                }
+                }, "Not Overdue"
 
             # calculate days overdue (rounded up)
             days_overdue = (datetime.now() - borrowed_books[i]['due_date']).days + 1
@@ -218,13 +218,13 @@ def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
             return {
                 'fee_amount': fee_amount,
                 'days_overdue': days_overdue
-            }
+            }, "Success"
 
     # patron has not borrowed the book
     return { 
         'fee_amount': 0.00,
         'days_overdue': 0
-    }
+    }, "Not borrowed by this patron."
     
 def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
     """
@@ -287,7 +287,7 @@ def get_patron_status_report(patron_id: str) -> Dict:
         'borrowed': borrowed_books,
         'fee_amount': total_fees,
         'borrow_count': get_patron_borrow_count(patron_id)
-    }
+    }, "Success"
 
 def pay_late_fees(patron_id: str, book_id: int, payment_gateway: PaymentGateway = None) -> Tuple[bool, str, Optional[str]]:
     """
@@ -352,7 +352,6 @@ def pay_late_fees(patron_id: str, book_id: int, payment_gateway: PaymentGateway 
     except Exception as e:
         # Handle payment gateway errors
         return False, f"Payment processing error: {str(e)}", None
-
 
 def refund_late_fee_payment(transaction_id: str, amount: float, payment_gateway: PaymentGateway = None) -> Tuple[bool, str]:
     """
