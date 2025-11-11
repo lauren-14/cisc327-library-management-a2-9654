@@ -143,7 +143,6 @@ def test_borrow_book_invalid_duplicate(mocker):
     mocker.patch("services.library_service.get_patron_borrowed_books", return_value=[{'book_id':1}])
     assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1}]
 
-    # 1984 ISBN
     success, message = library_service.borrow_book_by_patron("123456", 1)
     
     assert success == False

@@ -87,7 +87,7 @@ def test_pay_late_fees_invalid_patron_too_long():
     mock_gateway.process_payment.assert_not_called()
 
 def test_pay_late_fees_invalid_patron_too_short():
-    """Test too long patron ID."""
+    """Test too short patron ID."""
     mock_gateway = Mock(spec=PaymentGateway)
     # process payment return value not mocked since patron ID is rejected before
     # payment gateway is even accessed
@@ -98,8 +98,7 @@ def test_pay_late_fees_invalid_patron_too_short():
     mock_gateway.process_payment.assert_not_called()
 
 def test_pay_late_fees_invalid_patron_with_letters():
-    """Test patron_status for letters in patron ID."""
-    """Test too long patron ID."""
+    """Test patron ID with letters."""
     mock_gateway = Mock(spec=PaymentGateway)
     # process payment return value not mocked since patron ID is rejected before
     # payment gateway is even accessed
@@ -111,6 +110,7 @@ def test_pay_late_fees_invalid_patron_with_letters():
 
 # zero late fees (verifies mock is NOT called)
 def test_pay_late_fees_zero_fees(mocker):
+    """ Tests zero fees on payment gateway. """
     # testing calculate_late_fee_for_book stub
     mocker.patch("services.library_service.calculate_late_fee_for_book", return_value={
                         'fee_amount': 0,
@@ -133,7 +133,7 @@ def test_pay_late_fees_zero_fees(mocker):
     
 
 # network error exception handling
-def test_nextwork_error(mocker):
+def test_pay_late_fees_nextwork_error(mocker):
     """ Test network error from process payment (incorrect return values) """
     mocker.patch("services.library_service.calculate_late_fee_for_book", return_value={
                         'fee_amount': 15,

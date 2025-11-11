@@ -13,7 +13,7 @@ from services.payment_service import (
 )
 
 # successful refund
-def test_successful_refund():
+def test_refund_late_fee_success():
     """ Test successful refund """
 
     # testing refund_late_fee_payment with mocked PaymentGateway
@@ -26,7 +26,7 @@ def test_successful_refund():
     mock_gateway.refund_payment.assert_called_once()
 
 # invalid transaction ID rejections (verifies mock is NOT called)
-def test_invalid_transactionID():
+def test_refund_late_fee_invalid_transactionID():
     """ Tests invalid transaction ID (doesn't start with "txn_") """
 
     mock_gateway = Mock(spec=PaymentGateway)
@@ -38,7 +38,7 @@ def test_invalid_transactionID():
     assert msg == "Invalid transaction ID."
     mock_gateway.refund_payment.assert_not_called()
 
-def test_empty_transactionID():
+def test_refund_late_fee_empty_transactionID():
     """ Tests empty transaction ID"""
 
     mock_gateway = Mock(spec=PaymentGateway)
@@ -51,7 +51,7 @@ def test_empty_transactionID():
     mock_gateway.refund_payment.assert_not_called()
 
 # invalid refund amounts (negative, 0, exceeds $15 max)
-def test_negative_refund_amount():
+def test_refund_late_fee_negative_refund_amount():
     """ Tests negative (invalid) refund amount """
 
     mock_gateway = Mock(spec=PaymentGateway)
@@ -63,7 +63,7 @@ def test_negative_refund_amount():
     assert msg == "Refund amount must be greater than 0."
     mock_gateway.refund_payment.assert_not_called()
 
-def test_zero_refund_amount():
+def test_refund_late_fee_zero_refund_amount():
     """ Tests $0 (invalid) refund amount """
 
     mock_gateway = Mock(spec=PaymentGateway)
@@ -75,7 +75,7 @@ def test_zero_refund_amount():
     assert msg == "Refund amount must be greater than 0."
     mock_gateway.refund_payment.assert_not_called()
 
-def test_over_15_refund_amount():
+def test_refund_late_fee_over_15_refund_amount():
     """ Tests over $15 (invalid) refund amount """
 
     mock_gateway = Mock(spec=PaymentGateway)
@@ -88,7 +88,7 @@ def test_over_15_refund_amount():
     mock_gateway.refund_payment.assert_not_called()
 
 # refund processing error (exception handling)
-def test_refund_processing_error():
+def test_refund_late_fee_processing_error():
     """ Tests refund processing error """
 
     # testing refund_late_fee_payment with mocked PaymentGateway
