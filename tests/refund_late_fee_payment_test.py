@@ -24,6 +24,7 @@ def test_refund_late_fee_success():
     assert success == True
     assert msg == "Success"
     mock_gateway.refund_payment.assert_called_once()
+    mock_gateway.refund_payment.assert_called_with("txn_123", 15)
 
 # invalid transaction ID rejections (verifies mock is NOT called)
 def test_refund_late_fee_invalid_transactionID():

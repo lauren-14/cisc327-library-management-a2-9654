@@ -42,6 +42,7 @@ def test_pay_late_fees_successful_payment(mocker):
     assert "Payment successful!" in msg
     assert txn == "txn_123"
     mock_gateway.process_payment.assert_called_once()
+    mock_gateway.process_payment.assert_called_with(patron_id='123456', amount=15, description="Late fees for 'sample_title'")
 
 # payment declined by gateway
 def test_pay_late_fees_payment_decline(mocker):
@@ -73,6 +74,7 @@ def test_pay_late_fees_payment_decline(mocker):
     assert txn == None
     assert "Payment failed:" in msg
     mock_gateway.process_payment.assert_called_once()
+    mock_gateway.process_payment.assert_called_with(patron_id='123456', amount=2000, description="Late fees for 'sample_title'")
 
 # invalid patron IDs (verifies mock is NOT called)
 def test_pay_late_fees_invalid_patron_too_long():
