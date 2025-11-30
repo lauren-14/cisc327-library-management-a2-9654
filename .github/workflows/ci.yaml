@@ -49,10 +49,25 @@ jobs:
               python -m pip show pytest-mock || echo "pytest-mock not installed!"
               echo "---- pytest version ----"
               python -m pytest --version
+
+          - name: Run Flask 
+            run: |
+              python app.py & 
+              echo $! > flask.pid
+              sleep 10
+            shell: bash
             
           - name: Run tests
             shell: bash
             run: python -m pytest -v
+
+          - name: Stop Flask app
+            if: always()
+            run: |
+              if [ -f flask.pid ]; then
+                kill $(cat flask.pid) || true
+              fi
+            shell: bash
 
 
             
