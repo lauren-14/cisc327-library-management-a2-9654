@@ -56,6 +56,23 @@ jobs:
               echo $! > flask.pid
               sleep 10
             shell: bash
+
+          - name: Wait For Flask to Load (to run tests on MacOS)
+            run: |
+              echo "Waiting for Flask to load..."
+              for i in {1..10}; do 
+                if curl -f http://127.0.0.1:5000/ 2>/dev/null; then
+                  echo "Flask is ready."
+                  break
+                fi
+                sleep 1
+                if [ $i -eq 120 ]; then
+                  echo "Flask failed to start within 2 minutes."
+                  cat flask.log || true
+                  exit 1
+                fi
+              done
+            shell: bash
             
           - name: Run tests
             shell: bash
