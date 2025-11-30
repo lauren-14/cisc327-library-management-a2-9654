@@ -1,10 +1,12 @@
 """
 Catalog Routes - Book catalog related endpoints
 """
-
+import pytest
+import sys
+sys.path.append('services')
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from database import get_all_books
-from library_service import (
+from services.library_service import (
     add_book_to_catalog, get_patron_status_report
 )
 

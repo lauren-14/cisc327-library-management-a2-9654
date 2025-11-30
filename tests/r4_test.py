@@ -32,14 +32,14 @@ def test_return_book_valid_input(mocker):
     assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1}]
 
     # testing calculate_late_fee_for_book stub
-    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value={
+    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value=({
                         'fee_amount': 15,
                         'days_overdue': 21
-                    })
-    assert library_service.calculate_late_fee_for_book("123456", 1) == {
+                    }, "Success"))
+    assert library_service.calculate_late_fee_for_book("123456", 1) == ({
                         'fee_amount': 15,
                         'days_overdue': 21
-                    }
+                    }, "Success")
 
     # testing update_borrow_record_return_date stub
     mocker.patch("services.library_service.update_borrow_record_return_date", return_value=True)
@@ -113,7 +113,7 @@ def test_return_book_invalid_incorrect_patron(mocker):
     assert "not borrowed book with ID" in message
 
 # update return date database error
-def test_return_book_return_data_database_error(mocker):
+def test_return_book_return_database_error(mocker):
     """Test returning a book with valid input."""
 
     # testing get_book_by_id stub
@@ -129,14 +129,14 @@ def test_return_book_return_data_database_error(mocker):
     assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1}]
 
     # testing calculate_late_fee_for_book stub
-    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value={
+    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value=({
                         'fee_amount': 15,
                         'days_overdue': 21
-                    })
-    assert library_service.calculate_late_fee_for_book("123456", 1) == {
+                    }, "Success"))
+    assert library_service.calculate_late_fee_for_book("123456", 1) == ({
                         'fee_amount': 15,
                         'days_overdue': 21
-                    }
+                    }, "Success")
 
     # testing update_borrow_record_return_date stub
     mocker.patch("services.library_service.update_borrow_record_return_date", return_value=False)
@@ -163,14 +163,14 @@ def test_return_book_update_copies_database_error(mocker):
     assert library_service.get_patron_borrowed_books("123456") == [{'book_id':1}]
 
     # testing calculate_late_fee_for_book stub
-    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value={
+    mocker.patch("services.library_service.calculate_late_fee_for_book", return_value=({
                         'fee_amount': 15,
                         'days_overdue': 21
-                    })
-    assert library_service.calculate_late_fee_for_book("123456", 1) == {
+                    },"Success"))
+    assert library_service.calculate_late_fee_for_book("123456", 1) == ({
                         'fee_amount': 15,
                         'days_overdue': 21
-                    }
+                    },"Success")
 
     # testing update_borrow_record_return_date stub
     mocker.patch("services.library_service.update_borrow_record_return_date", return_value=True)

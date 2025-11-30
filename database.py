@@ -44,6 +44,14 @@ def init_database():
             FOREIGN KEY (book_id) REFERENCES books (id)
         )
     ''')
+
+    if conn.execute('SELECT isbn FROM books WHERE isbn = "1234567890123"'):
+        # delete added book test data
+        conn.execute('DELETE FROM books WHERE isbn = "1234567890123"') 
+
+    if conn.execute('SELECT patron_id FROM borrow_records WHERE patron_id = "000000"'):
+        # delete borrowed book test data 
+        conn.execute('DELETE FROM borrow_records WHERE patron_id = "000000"') 
     
     conn.commit()
     conn.close()

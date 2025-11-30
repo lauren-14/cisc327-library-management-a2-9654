@@ -22,10 +22,10 @@ def test_search_book_valid_title(mocker):
     mocker.patch("services.library_service.get_all_books", 
                     return_value=[{"title":"the great gatsby"}])
     
-    book, message = library_service.search_books_in_catalog("the great gatsby","title")
+    book = library_service.search_books_in_catalog("the great gatsby","title")
     
     assert len(book) > 0
-    assert "success" in message
+    #assert "success" in message
 
 def test_search_book_valid_author(mocker):
     """Test book valid author input (partial matching)."""
@@ -33,10 +33,10 @@ def test_search_book_valid_author(mocker):
     mocker.patch("services.library_service.get_all_books", 
                     return_value=[{"author":"harper lee"}])
     
-    book, message = library_service.search_books_in_catalog("harper lee","author")
+    book = library_service.search_books_in_catalog("harper lee","author")
     
     assert len(book) > 0
-    assert "success" in message
+    #assert "success" in message
 
 def test_search_book_valid_isbn(mocker):
     """Test book valid isbn input (exact matching)."""
@@ -46,10 +46,10 @@ def test_search_book_valid_isbn(mocker):
                     return_value=True)
     
     assert library_service.get_book_by_isbn("1234567890123") == True
-    book, message = library_service.search_books_in_catalog("9780743273565","isbn")
+    book = library_service.search_books_in_catalog("9780743273565","isbn")
     
     assert len(book) > 0
-    assert "success" in message
+    #assert "success" in message
 
 def test_search_book_invalid_title_not_in_db(mocker):
     """Test book not in database."""
@@ -58,10 +58,10 @@ def test_search_book_invalid_title_not_in_db(mocker):
     mocker.patch("services.library_service.get_all_books", 
                     return_value=[{"title":"the great gatsby"}])
     
-    book, message = library_service.search_books_in_catalog("Six of Crows","title")
+    book = library_service.search_books_in_catalog("Six of Crows","title")
     
     assert len(book) == 0
-    assert "not found" in message
+    #assert "not found" in message
 
 def test_search_book_invalid_author_not_in_db(mocker):
     """Test book not in database."""
@@ -70,10 +70,10 @@ def test_search_book_invalid_author_not_in_db(mocker):
     mocker.patch("services.library_service.get_all_books", 
                     return_value=[{"author":"harper lee"}])
     
-    book, message = library_service.search_books_in_catalog("Leigh Bardugo","author")
+    book = library_service.search_books_in_catalog("Leigh Bardugo","author")
     
     assert len(book) == 0
-    assert "not found" in message
+    #assert "not found" in message
 
 def test_search_book_invalid_isbn_not_in_db(mocker):
     """Test book not in database."""
@@ -84,20 +84,20 @@ def test_search_book_invalid_isbn_not_in_db(mocker):
     
     assert library_service.get_book_by_isbn("1234567890123") == False
 
-    book, message = library_service.search_books_in_catalog("5","isbn")
+    book = library_service.search_books_in_catalog("5","isbn")
     
     assert book == []
-    assert "ISBN does not exist" in message
+    #assert "ISBN does not exist" in message
 
 def test_search_book_invalid_search_type(mocker):
     """Test book not in database."""
 
     mocker.patch("services.library_service.get_all_books", 
                     return_value=[])
-    book, message = library_service.search_books_in_catalog("5","search type")
+    book = library_service.search_books_in_catalog("5","search type")
     
     assert book == []
-    assert "invalid search type" in message
+    #assert "invalid search type" in message
 
 # if __name__ == "__main__":
 #     test_search_book_valid_title()

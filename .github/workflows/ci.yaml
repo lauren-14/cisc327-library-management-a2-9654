@@ -37,6 +37,9 @@ jobs:
                 python -m pip install pytest 
                 pip install -r requirements.txt pytest-mock
                 pip install --force-reinstall pytest pytest-mock
+                pip install pytest-playwright
+                playwright install
+                pip install pytest-playwright playwright -U
 
           - name: Verify pytest-mock installation
             shell: bash

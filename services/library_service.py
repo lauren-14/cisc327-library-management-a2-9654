@@ -148,7 +148,7 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
         if (borrowed_books[i]['book_id'] == book_id):
 
             # retrieve late fees
-            late_fees = calculate_late_fee_for_book(patron_id,book_id)['fee_amount']
+            late_fees = calculate_late_fee_for_book(patron_id,book_id)[0]['fee_amount']
             
             # record return date
             return_date = datetime.now()
@@ -165,7 +165,7 @@ def return_book_by_patron(patron_id: str, book_id: int) -> Tuple[bool, str]:
 
     return False, f'Patron "{patron_id}" has not borrowed book with ID "{book_id}".'
 
-def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Dict:
+def calculate_late_fee_for_book(patron_id: str, book_id: int) -> Tuple[Dict,str]:
     """
     R5: Calculate late fees for a specific book.
     
@@ -244,10 +244,10 @@ def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
         existing = get_book_by_isbn(search_term)
         if existing:
             # return book data
-            return [existing], f'Book with ISBN "{search_term.strip()}" has been successfully retrieved.'
-        return [], "A book with this ISBN does not exist."
+            return [existing]#, f'Book with ISBN "{search_term.strip()}" has been successfully retrieved.'
+        return []#, "A book with this ISBN does not exist."
     
-    all_books = get_all_books() 
+    all_books = get_all_books()
     # all_books format: [{'id': #, 'title': 'x', 'author': 'x', 'isbn': #, ...}, ...]
 
     # search by title or author
@@ -256,11 +256,11 @@ def search_books_in_catalog(search_term: str, search_type: str) -> List[Dict]:
             # found title or author (case-insensitive)
             if (all_books[i][search_type].lower() == search_term.lower()):
                 # return book data
-                return [all_books[i]], f'Book with "{search_type}" "{search_term.strip()}" has been successfully retrieved.'
+                return [all_books[i]]#, f'Book with "{search_type}" "{search_term.strip()}" has been successfully retrieved.'
         
-        return [], f'Book with "{search_type}" "{search_term.strip()}" not found.'
+        return []#, f'Book with "{search_type}" "{search_term.strip()}" not found.'
     
-    return [], "invalid search type"
+    return []#, "invalid search type"
 
 def get_patron_status_report(patron_id: str) -> Dict:
     """
